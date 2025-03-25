@@ -10,6 +10,7 @@ void Init_UART(void);
 void Init_PWM(void);
 
 volatile unsigned char v[NPOINTS]; //store ADC Values
+volatile unsigned char started = 0;
 volatile char received_char = 0; // Stores recived UART data
 volatile char command = 0; // Stores command
 volatile unsigned char pwm = 0; // Stores PWM value
@@ -83,18 +84,22 @@ void Init_PWM(void) {
 __interrupt void USCI0RX_ISR(void) {
     // read received character
     received_char = UCA0RXBUF;
-    if (pwm_flag) {
-        pwm = received_char;
-        pwm_flag = 0;
-    } else {
-        command = received_char;
-        pwm_flag = 1;
-        TA0CCR1 = pwm;
-        if(command == 'C'){
-            P1OUT |= 0x03;
+    if(started){
+        if (pwm_flag) {
+            pwm = received_char;
+            pwm_flag = 0;
         } else {
-            P1OUT &= ~0x03;
+            command = received_char;
+            pwm_flag = 1;
+            TA0CCR1 = pwm;
+            if(command == 'C'){
+                P1OUT |= 0x03;
+            } else {
+                P1OUT &= ~0x03;
+            }
         }
+    }else{
+        started = 1;
     }
     task_ready = 1;
     __bic_SR_register_on_exit(LPM0_bits);
