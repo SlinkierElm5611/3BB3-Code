@@ -13,7 +13,7 @@ volatile unsigned char v[NPOINTS]; //store ADC Values
 volatile char received_char = 0; // Stores recived UART data
 volatile char command = 0; // Stores command
 volatile unsigned char pwm = 0; // Stores PWM value
-volatile unsigned char pwm_flag = 0;
+volatile unsigned char pwm_flag = 1;
 volatile int task_ready = 0; //Flag to start converstion 
 
 void main(void) {
